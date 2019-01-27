@@ -66,7 +66,7 @@ public:
             {
                 vdecode.send(pkt);
                 AVFrame *frame = vdecode.recv();
-                video->Repaint(frame);
+                video->repaint(frame);
                 msleep(40);
                 //cout << "Video:" << frame << endl;
             }
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     w.show();
 
     //初始化gl窗口
-    w.ui.video->Init(tt.demux.width, tt.demux.height);
+    w.ui.video->init(tt.demux.width, tt.demux.height);
     tt.video = w.ui.video;
     tt.start();
 

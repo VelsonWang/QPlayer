@@ -47,7 +47,8 @@ SOURCES += \
     XDemux.cpp \
     XDecode.cpp \
     XVideoWidget.cpp \
-    XPlay2.cpp
+    XPlay2.cpp \
+    XResample.cpp
 
 HEADERS += \
         MainWindow.h \
@@ -57,7 +58,8 @@ HEADERS += \
     XDemux.h \
     XDecode.h \
     XVideoWidget.h \
-    XPlay2.h
+    XPlay2.h \
+    XResample.h
 
 FORMS += \
         MainWindow.ui \

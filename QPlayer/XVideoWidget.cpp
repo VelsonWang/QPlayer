@@ -5,6 +5,7 @@
 extern "C" {
 #include <libavutil/frame.h>
 }
+
 //自动加双引号
 #define GET_STR(x) #x
 #define A_VER 3
@@ -15,34 +16,34 @@ FILE *fp = NULL;
 //顶点shader
 const char *vString = GET_STR(
 	attribute vec4 vertexIn;
-attribute vec2 textureIn;
-varying vec2 textureOut;
-void main(void)
-{
-	gl_Position = vertexIn;
-	textureOut = textureIn;
-}
+    attribute vec2 textureIn;
+    varying vec2 textureOut;
+    void main(void)
+    {
+        gl_Position = vertexIn;
+        textureOut = textureIn;
+    }
 );
 
 
 //片元shader
 const char *tString = GET_STR(
 	varying vec2 textureOut;
-uniform sampler2D tex_y;
-uniform sampler2D tex_u;
-uniform sampler2D tex_v;
-void main(void)
-{
-	vec3 yuv;
-	vec3 rgb;
-	yuv.x = texture2D(tex_y, textureOut).r;
-	yuv.y = texture2D(tex_u, textureOut).r - 0.5;
-	yuv.z = texture2D(tex_v, textureOut).r - 0.5;
-	rgb = mat3(1.0, 1.0, 1.0,
-		0.0, -0.39465, 2.03211,
-		1.13983, -0.58060, 0.0) * yuv;
-	gl_FragColor = vec4(rgb, 1.0);
-}
+    uniform sampler2D tex_y;
+    uniform sampler2D tex_u;
+    uniform sampler2D tex_v;
+    void main(void)
+    {
+        vec3 yuv;
+        vec3 rgb;
+        yuv.x = texture2D(tex_y, textureOut).r;
+        yuv.y = texture2D(tex_u, textureOut).r - 0.5;
+        yuv.z = texture2D(tex_v, textureOut).r - 0.5;
+        rgb = mat3(1.0, 1.0, 1.0,
+            0.0, -0.39465, 2.03211,
+            1.13983, -0.58060, 0.0) * yuv;
+        gl_FragColor = vec4(rgb, 1.0);
+    }
 
 );
 
@@ -59,13 +60,12 @@ XVideoWidget::~XVideoWidget()
 {
 }
 
-void XVideoWidget::Repaint(AVFrame *frame)
+void XVideoWidget::repaint(AVFrame *frame)
 {
 	if (!frame)return;
 	mux.lock();
 	//容错，保证尺寸正确
-    if (!datas[0] || width*height == 0 ||
-            frame->width != this->width || frame->height != this->height)
+    if (!datas[0] || width*height == 0 || frame->width != this->width || frame->height != this->height)
 	{
 		av_frame_free(&frame);
 		mux.unlock();
@@ -80,7 +80,15 @@ void XVideoWidget::Repaint(AVFrame *frame)
 	//刷新显示
 	update();
 }
-void XVideoWidget::Init(int width, int height)
+
+// 绘图事件
+void XVideoWidget::paintEvent(QPaintEvent *e)
+{
+
+    QOpenGLWidget::paintEvent(e);
+}
+
+void XVideoWidget::init(int width, int height)
 {
 	mux.lock();
 	this->width = width;
@@ -130,6 +138,7 @@ void XVideoWidget::Init(int width, int height)
 
 
 }
+
 //初始化opengl
 void XVideoWidget::initializeGL()
 {

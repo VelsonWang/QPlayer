@@ -5,19 +5,22 @@
 #include <QOpenGLFunctions>
 #include <QGLShaderProgram>
 #include <mutex>
+
 struct AVFrame;
+
 class XVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
 	Q_OBJECT
 
 public:
-	void Init(int width, int height);
+    void init(int width, int height);
 
 	//不管成功与否都释放frame空间
-	virtual void Repaint(AVFrame *frame);
+    virtual void repaint(AVFrame *frame);
 
 	XVideoWidget(QWidget *parent);
 	~XVideoWidget();
+
 protected:
 	//刷新显示
 	void paintGL();
@@ -27,6 +30,11 @@ protected:
 
 	// 窗口尺寸变化
 	void resizeGL(int width, int height);
+
+    // 绘图事件
+    void paintEvent(QPaintEvent *e);
+
+
 private:
 	std::mutex mux;
 
