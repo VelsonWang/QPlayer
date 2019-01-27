@@ -99,6 +99,8 @@ bool XDemux::open(const char *url)
     videoStream = av_find_best_stream(ic, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
 
     AVStream *as = ic->streams[videoStream];
+    width = as->codecpar->width;
+    height = as->codecpar->height;
 
     cout << "codec_id = " << as->codecpar->codec_id << endl;
     cout << "format = " << as->codecpar->format << endl;

@@ -1,7 +1,8 @@
 
 QT       += core gui
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += opengl
+
 
 # use C++11 in Project
 CONFIG += c++11
@@ -44,7 +45,9 @@ SOURCES += \
     Video.cpp \
     Player.cpp \
     XDemux.cpp \
-    XDecode.cpp
+    XDecode.cpp \
+    XVideoWidget.cpp \
+    XPlay2.cpp
 
 HEADERS += \
         MainWindow.h \
@@ -52,7 +55,13 @@ HEADERS += \
     Video.h \
     Player.h \
     XDemux.h \
-    XDecode.h
+    XDecode.h \
+    XVideoWidget.h \
+    XPlay2.h
 
 FORMS += \
-        MainWindow.ui
+        MainWindow.ui \
+    XPlay2.ui
+
+RESOURCES += \
+    XPlay2.qrc
