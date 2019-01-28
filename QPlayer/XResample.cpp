@@ -60,3 +60,24 @@ bool XResample::open(AVCodecParameters *para)
 	return true;
 }
 
+//返回重采样后大小,不管成功与否都释放indata空间
+int XResample::resample(AVFrame *indata, unsigned char *d)
+{
+    if (!indata) return 0;
+    if (!d)
+    {
+        av_frame_free(&indata);
+        return 0;
+    }
+    uint8_t *data[2] = { 0 };
+    data[0] = d;
+    int re = swr_convert(actx,
+                         data,
+                         indata->nb_samples, // 输出
+                         (const uint8_t**)indata->data,
+                         indata->nb_samples	// 输入
+                         );
+    if (re <= 0)return re;
+    int outSize = re * indata->channels * av_get_bytes_per_sample((AVSampleFormat)outFormat);
+    return outSize;
+}

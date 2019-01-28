@@ -22,6 +22,8 @@ extern "C"{
 #include "XDemux.h"
 #include "XDecode.h"
 #include "XPlay2.h"
+#include "XResample.h"
+#include "XAudioPlay.h"
 
 ///////////////// for test  <<<
 
@@ -49,8 +51,14 @@ public:
         //vdecode.Clear();
         //vdecode.Close();
         std::cout << "adecode.Open() = " << adecode.open(demux.copyAPara()) << std::endl;
+        std::cout << "resample.Open = " << resample.open(demux.copyAPara()) << std::endl;
+
+        XAudioPlay::get()->channels = demux.channels;
+        XAudioPlay::get()->sampleRate = demux.sampleRate;
+        std::cout << "XAudioPlay::get()->open() = " << XAudioPlay::get()->open()<< std::endl;
 
     }
+    unsigned char *pcm = new unsigned char[1024 * 1024];
     void run()
     {
         for (;;)
@@ -58,9 +66,19 @@ public:
             AVPacket *pkt = demux.read();
             if (demux.isAudio(pkt))
             {
-                //adecode.Send(pkt);
-                //AVFrame *frame = adecode.Recv();
-                //cout << "Audio:" << frame << endl;
+                adecode.send(pkt);
+                AVFrame *frame = adecode.recv();
+                int len = resample.resample(frame, pcm);
+                std::cout<<"Resample:"<<len<<" ";
+                while (len > 0)
+                {
+                    if (XAudioPlay::get()->getFree() >= len)
+                    {
+                        XAudioPlay::get()->write(pcm, len);
+                        break;
+                    }
+                    msleep(1);
+                }
             }
             else
             {
@@ -80,7 +98,7 @@ public:
     XDecode vdecode;
     XDecode adecode;
     XVideoWidget *video;
-
+    XResample resample;
 };
 
 int main(int argc, char *argv[])

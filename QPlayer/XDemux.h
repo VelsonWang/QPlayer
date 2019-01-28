@@ -32,6 +32,8 @@ public:
     int totalMs;
     int width = 0;
     int height = 0;
+    int sampleRate = 0;
+    int channels = 0;
 
 protected:
     std::mutex mutex_;

@@ -1,6 +1,7 @@
 
 build-*
 tmp/
+bin/QPlayer.exe
 
 *.user
 
