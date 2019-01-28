@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+﻿#include "MainWindow.h"
 #include <QApplication>
 #include <QTextCodec>
 
@@ -67,6 +67,7 @@ public:
                 vdecode.send(pkt);
                 AVFrame *frame = vdecode.recv();
                 video->repaint(frame);
+                av_frame_free(&frame);
                 msleep(40);
                 //cout << "Video:" << frame << endl;
             }
@@ -119,16 +120,23 @@ int main(int argc, char *argv[])
     w.show();
 */
 
-    TestThread tt;
-    tt.Init();
+
     QApplication a(argc, argv);
     XPlay2 w;
     w.show();
+
+    TestThread tt;
+    tt.Init();
 
     //初始化gl窗口
     w.ui.video->init(tt.demux.width, tt.demux.height);
     tt.video = w.ui.video;
     tt.start();
 
-    return a.exec();
+    int ret = a.exec();
+
+    tt.terminate();
+    tt.wait();
+
+    return ret;
 }
