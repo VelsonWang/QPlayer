@@ -1,9 +1,11 @@
 ﻿
-#pragma once
+#ifndef XVIDEOWIDGET_H
+#define XVIDEOWIDGET_H
 
 #include <QOpenGLWidget>
+#include <QResizeEvent>
 #include <mutex>
-
+#include "IVideoCall.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -20,18 +22,16 @@ extern "C"{
 }
 #endif
 
-class XVideoWidget : public QOpenGLWidget
+class XVideoWidget : public QOpenGLWidget, public IVideoCall
 {
 	Q_OBJECT
 
 public:
-    void init(int width, int height);
+    XVideoWidget(QWidget *parent);
+    ~XVideoWidget();
 
-	//不管成功与否都释放frame空间
+    virtual void init(int width, int height);
     virtual void repaint(AVFrame *frame);
-
-	XVideoWidget(QWidget *parent);
-	~XVideoWidget();
 
 private:
     int scaleImg(AVCodecContext *pCodecCtx,
@@ -41,15 +41,19 @@ private:
                  int nDstW);
 
 protected:
-    void paintEvent(QPaintEvent *e);
-
+    void paintEvent(QPaintEvent *event);
 
 private:
     std::mutex mutex_;
     SwsContext *swsCtxPtr_;
     AVPicture avPicture_;
+    bool bShowVideo_;
 
     int width_ = 240;
     int height_ = 128;
 
 };
+
+#endif
+
+

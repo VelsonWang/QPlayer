@@ -10,6 +10,20 @@ extern "C"
 
 using namespace std;
 
+
+void XFreePacket(AVPacket **pkt)
+{
+    if (!pkt || !(*pkt)) return;
+    av_packet_free(pkt);
+}
+
+void XFreeFrame(AVFrame **frame)
+{
+    if (!frame || !(*frame)) return;
+    av_frame_free(frame);
+}
+
+
 XDecode::XDecode()
 {
 }
@@ -31,10 +45,10 @@ bool XDecode::open(AVCodecParameters *para)
 	if (!vcodec)
 	{
 		avcodec_parameters_free(&para);
-		cout << "can't find the codec id " << para->codec_id << endl;
+        //cout << "can't find the codec id " << para->codec_id << endl;
 		return false;
 	}
-	cout << "find the AVCodec " << para->codec_id << endl;
+    //cout << "find the AVCodec " << para->codec_id << endl;
 
     mutex_.lock();
     codec_ = avcodec_alloc_context3(vcodec);
@@ -47,18 +61,18 @@ bool XDecode::open(AVCodecParameters *para)
     codec_->thread_count = 8;
 
 	///打开解码器上下文
-    int re = avcodec_open2(codec_, 0, 0);
-	if (re != 0)
+    int ret = avcodec_open2(codec_, 0, 0);
+    if (ret != 0)
 	{
         avcodec_free_context(&codec_);
         mutex_.unlock();
 		char buf[1024] = { 0 };
-		av_strerror(re, buf, sizeof(buf) - 1);
-		cout << "avcodec_open2  failed! :" << buf << endl;
+        av_strerror(ret, buf, sizeof(buf) - 1);
+        //cout << "avcodec_open2  failed! :" << buf << endl;
 		return false;
 	}
     mutex_.unlock();
-	cout << " avcodec_open2 success!" << endl;
+    //cout << " avcodec_open2 success!" << endl;
 	return true;
 }
 
@@ -66,17 +80,17 @@ bool XDecode::open(AVCodecParameters *para)
 bool XDecode::send(AVPacket *pkt)
 {
     //容错处理
-    if (!pkt || pkt->size <= 0 || !pkt->data)return false;
+    if (!pkt || pkt->size <= 0 || !pkt->data) return false;
     mutex_.lock();
     if (!codec_)
     {
         mutex_.unlock();
         return false;
     }
-    int re = avcodec_send_packet(codec_, pkt);
+    int ret = avcodec_send_packet(codec_, pkt);
     mutex_.unlock();
     av_packet_free(&pkt);
-    if (re != 0)return false;
+    if (ret != 0)return false;
     return true;
 }
 
@@ -91,14 +105,15 @@ AVFrame* XDecode::recv()
         return NULL;
     }
     AVFrame *frame = av_frame_alloc();
-    int re = avcodec_receive_frame(codec_, frame);
+    int ret = avcodec_receive_frame(codec_, frame);
     mutex_.unlock();
-    if (re != 0)
+    if (ret != 0)
     {
         av_frame_free(&frame);
         return NULL;
     }
-    cout << "["<<frame->linesize[0] << "] " << flush;
+    //cout << "["<<frame->linesize[0] << "] " << flush;
+    pts_ = frame->pts;
     return frame;
 }
 
@@ -110,6 +125,7 @@ void XDecode::close()
         avcodec_close(codec_);
         avcodec_free_context(&codec_);
     }
+    pts_ = 0;
     mutex_.unlock();
 }
 
@@ -117,9 +133,7 @@ void XDecode::clear()
 {
     mutex_.lock();
     //清理解码缓冲
-    if (codec_)
-        avcodec_flush_buffers(codec_);
-
+    if (codec_) avcodec_flush_buffers(codec_);
     mutex_.unlock();
 }
 

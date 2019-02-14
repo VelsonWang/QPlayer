@@ -8,13 +8,14 @@ struct AVPacket;
 
 #include <mutex>
 
+extern void XFreePacket(AVPacket **pkt);
+extern void XFreeFrame(AVFrame **frame);
+
 class XDecode
 {
 public:
     XDecode();
     virtual ~XDecode();
-
-	bool isAudio = false;
 
 	//打开解码器,不管成功与否都释放para空间
     virtual bool open(AVCodecParameters *para);
@@ -29,6 +30,10 @@ public:
     virtual void close();
     virtual void clear();
 
+public:
+    bool isAudio_ = false;
+    //当前解码到的pts
+    long long pts_ = 0;
 
 protected:
     AVCodecContext *codec_ = 0;

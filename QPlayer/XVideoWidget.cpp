@@ -7,10 +7,10 @@
 //自动加双引号
 #define GET_STR(x) #x
 
-//准备yuv数据
-// ffmpeg -i v1080.mp4 -t 10 -s 240x128 -pix_fmt yuv420p  out240x128.yuv
+
 XVideoWidget::XVideoWidget(QWidget *parent)
-	: QOpenGLWidget(parent)
+    : QOpenGLWidget(parent),
+      bShowVideo_(false)
 {
 
 }
@@ -81,8 +81,7 @@ int XVideoWidget::scaleImg(AVCodecContext *pCodecCtx,
 
 void XVideoWidget::repaint(AVFrame *frame)
 {
-    if (!frame)
-        return;
+    if (!frame) return;
     mutex_.lock();
 
     if (width_*height_ == 0 || frame->width != width_ || frame->height != height_)
@@ -101,17 +100,18 @@ void XVideoWidget::repaint(AVFrame *frame)
                        avPicture_.linesize);
 
     mutex_.unlock();
-
+    bShowVideo_ = true;
 	update();
 }
 
 
-void XVideoWidget::paintEvent(QPaintEvent *e)
+void XVideoWidget::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event)
     QPainter painter;
     painter.begin(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    if(avPicture_.data != NULL)
+    if(avPicture_.data != NULL && bShowVideo_)
     {
         QImage image = QImage(avPicture_.data[0], width_, height_, QImage::Format_RGB888);
         QPixmap pix = QPixmap::fromImage(image);

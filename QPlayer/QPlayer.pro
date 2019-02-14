@@ -40,31 +40,33 @@ LIBS += $$PWD/ffmpeg/lib/avcodec.lib \
 
 SOURCES += \
         main.cpp \
-        MainWindow.cpp \
-        FFmpeg.cpp \
-    Video.cpp \
-    Player.cpp \
     XDemux.cpp \
     XDecode.cpp \
     XVideoWidget.cpp \
     XPlay2.cpp \
     XResample.cpp \
-    XAudioPlay.cpp
+    XAudioPlay.cpp \
+    XSlider.cpp \
+    XAudioThread.cpp \
+    XDecodeThread.cpp \
+    XVideoThread.cpp \
+    XDemuxThread.cpp
 
 HEADERS += \
-        MainWindow.h \
-        FFmpeg.h \
-    Video.h \
-    Player.h \
     XDemux.h \
     XDecode.h \
     XVideoWidget.h \
     XPlay2.h \
     XResample.h \
-    XAudioPlay.h
+    XAudioPlay.h \
+    IVideoCall.h \
+    XSlider.h \
+    XAudioThread.h \
+    XDecodeThread.h \
+    XVideoThread.h \
+    XDemuxThread.h
 
 FORMS += \
-        MainWindow.ui \
     XPlay2.ui
 
 RESOURCES += \
