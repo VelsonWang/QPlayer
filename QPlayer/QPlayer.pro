@@ -50,7 +50,16 @@ SOURCES += \
     XAudioThread.cpp \
     XDecodeThread.cpp \
     XVideoThread.cpp \
-    XDemuxThread.cpp
+    XDemuxThread.cpp \
+    MainWindow.cpp \
+    PlayList.cpp \
+    Title.cpp \
+    About.cpp \
+    GlobalHelper.cpp \
+    CtrlBar.cpp \
+    CustomSlider.cpp \
+    MediaList.cpp \
+    XSDLVideoWidget.cpp
 
 HEADERS += \
     XDemux.h \
@@ -64,10 +73,24 @@ HEADERS += \
     XAudioThread.h \
     XDecodeThread.h \
     XVideoThread.h \
-    XDemuxThread.h
+    XDemuxThread.h \
+    MainWindow.h \
+    PlayList.h \
+    Title.h \
+    About.h \
+    GlobalHelper.h \
+    CtrlBar.h \
+    CustomSlider.h \
+    MediaList.h \
+    XSDLVideoWidget.h
 
 FORMS += \
-    XPlay2.ui
+    XPlay2.ui \
+    MainWindow.ui \
+    PlayList.ui \
+    Title.ui \
+    About.ui \
+    CtrlBar.ui
 
 RESOURCES += \
     XPlay2.qrc
