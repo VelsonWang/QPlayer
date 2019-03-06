@@ -8,7 +8,8 @@
 
 CtrlBar::CtrlBar(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::CtrlBar)
+    ui(new Ui::CtrlBar),
+    isPlaySliderPress_(false)
 {
     ui->setupUi(this);
     lastVolumePercent_ = 1.0;
@@ -43,6 +44,7 @@ bool CtrlBar::init()
 
     double dPercent = -1.0;
     GlobalHelper::getPlayVolume(dPercent);
+
     if (dPercent != -1.0) {
         emit sigPlayVolume(dPercent);
         onVideopVolume(dPercent);
@@ -56,6 +58,8 @@ bool CtrlBar::connectSignalSlots()
 {
     connect(ui->PlaylistCtrlBtn, &QPushButton::clicked, this, &CtrlBar::sigShowOrHidePlaylist);
     connect(ui->PlaySlider, &CustomSlider::sigCustomSliderValueChanged, this, &CtrlBar::onPlaySliderValueChanged);
+    connect(ui->PlaySlider, &CustomSlider::sigCustomSliderPressed, this, &CtrlBar::onCustomSliderPressed);
+    connect(ui->PlaySlider, &CustomSlider::sigCustomSliderReleased, this, &CtrlBar::onCustomSliderReleased);
     connect(ui->VolumeSlider, &CustomSlider::sigCustomSliderValueChanged, this, &CtrlBar::onVolumeSliderValueChanged);
     connect(ui->BackwardBtn, &QPushButton::clicked, this, &CtrlBar::sigBackwardPlay);
     connect(ui->ForwardBtn, &QPushButton::clicked, this, &CtrlBar::sigForwardPlay);
@@ -167,4 +171,19 @@ void CtrlBar::on_StopBtn_clicked()
 void CtrlBar::on_SettingBtn_clicked()
 {
     //emit SigShowSetting();
+}
+
+bool CtrlBar::isPlaySliderPressed()
+{
+    return isPlaySliderPress_;
+}
+
+void CtrlBar::onCustomSliderPressed()
+{
+    isPlaySliderPress_ = true;
+}
+
+void CtrlBar::onCustomSliderReleased()
+{
+    isPlaySliderPress_ = false;
 }

@@ -1,8 +1,6 @@
 ﻿#include "about.h"
-#include "ui_about.h"
-
+#include "ui_About.h"
 #include "GlobalHelper.h"
-
 
 
 About::About(QWidget *parent)
@@ -10,7 +8,6 @@ About::About(QWidget *parent)
 {
     ui = new Ui::About();
     ui->setupUi(this);
-
 }
 
 About::~About()
@@ -23,9 +20,10 @@ bool About::init()
     this->setWindowModality(Qt::ApplicationModal);
 
     this->setWindowIcon(QIcon(":/Resources/player.png"));
-    ui->LogoLabel->setPixmap(QPixmap(":/Resources/player.png").scaled(80, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    QPixmap pixmap = QPixmap(":/Resources/player.png").scaled(80, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    ui->LogoLabel->setPixmap(pixmap);
 
-    //setStyleSheet(GlobalHelper::GetQssStr(":/Resources/qss/about.css"));
+    setStyleSheet(GlobalHelper::getQssStr(":/Resources/qss/about.css"));
 
     QString strVersion = QString("版本：%1\n时间：%2")
             .arg(GlobalHelper::getAppVersion())

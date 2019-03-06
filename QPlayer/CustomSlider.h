@@ -11,6 +11,7 @@ class CustomSlider : public QSlider
 public:
     CustomSlider(QWidget *parent);
     ~CustomSlider();
+    bool isPressed();
 
 protected:
     void mousePressEvent(QMouseEvent *ev);
@@ -19,6 +20,9 @@ protected:
 
 signals:
     void sigCustomSliderValueChanged();
+    void sigCustomSliderPressed();
+    void sigCustomSliderReleased();
+
 };
 
 #endif // CUSTOMSLIDER_H

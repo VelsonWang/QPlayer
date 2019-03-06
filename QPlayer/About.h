@@ -28,7 +28,6 @@ private slots:
 
 private:
     Ui::About *ui;
-
     bool bMoveDrag_; // 移动窗口标志
     QPoint dragPosition_;
 };

@@ -65,14 +65,7 @@
         </widget>
        </item>
        <item row="0" column="0">
-        <widget class="QWidget" name="ShowWid" native="true">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>100</height>
-          </size>
-         </property>
-        </widget>
+        <widget class="XVideoWidget" name="VideoShow"/>
        </item>
       </layout>
      </widget>
@@ -122,6 +115,11 @@
    <extends>QWidget</extends>
    <header>ctrlbar.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>XVideoWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header location="global">XVideoWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

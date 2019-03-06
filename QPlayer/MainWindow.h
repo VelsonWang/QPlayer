@@ -49,23 +49,19 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
 
     void contextMenuEvent(QContextMenuEvent* event);
-
+    // 定时器 滑动条显示
+    void timerEvent(QTimerEvent *e);
 
 private:
     bool connectSignalSlots();
 
-    //关闭、最小化、最大化按钮响应
+    // 关闭、最小化、最大化按钮响应
     void onCloseBtnClicked();
     void onMinBtnClicked();
     void onMaxBtnClicked();
-    //显示、隐藏播放列表
+    // 显示、隐藏播放列表
     void onShowOrHidePlaylist();
 
-
-
-    /**
-    * @brief	全屏播放
-    */
     void onFullScreenPlay();
 
     void onCtrlBarAnimationTimeOut();
@@ -76,8 +72,12 @@ private:
     void onShowAbout();
     void openFile();
 
+private slots:
+    void onPlaySeek(double dPercent);
+    void onPlayOrPause();
+
 signals:
-    //最大化信号
+    // 最大化信号
     void sigShowMax(bool bIfMax);
     void sigSeekForward();
     void sigSeekBack();
@@ -89,32 +89,24 @@ signals:
 private:
     Ui::MainWindow *ui;
 
-    bool m_bPlaying; ///< 正在播放
+    bool m_bPlaying; // 正在播放
+    const int m_nShadowWidth; // 阴影宽度
+    bool m_bFullScreenPlay; // 全屏播放标志
 
-//     CtrlBar     *m_pCtrlBar;    ///< 播放控制面板
-//     Playlist    *m_pPlaylist;   ///< 播放列表面板
-//     Title       *m_pTitle;      ///< 标题栏面板
-//     DisplayWid  *m_pDisplay;    ///< 显示区域
-//     PlaylistCtrlBar *m_pPlaylistCtrlBar; ///< 播放列表控制按钮
-
-    const int m_nShadowWidth; ///< 阴影宽度
-
-    bool m_bFullScreenPlay; ///< 全屏播放标志
-
-    QPropertyAnimation *m_stCtrlbarAnimationShow; //全屏时控制面板浮动显示
-    QPropertyAnimation *m_stCtrlbarAnimationHide; //全屏时控制面板浮动显示
-    QRect m_stCtrlBarAnimationShow;//控制面板显示区域
-    QRect m_stCtrlBarAnimationHide;//控制面板隐藏区域
+    QPropertyAnimation *m_stCtrlbarAnimationShow; // 全屏时控制面板浮动显示
+    QPropertyAnimation *m_stCtrlbarAnimationHide; // 全屏时控制面板浮动显示
+    QRect m_stCtrlBarAnimationShow; // 控制面板显示区域
+    QRect m_stCtrlBarAnimationHide; // 控制面板隐藏区域
 
     QTimer m_stCtrlBarAnimationTimer;
-    QTimer m_stFullscreenMouseDetectTimer;//全屏时鼠标位置监测时钟
+    QTimer m_stFullscreenMouseDetectTimer; // 全屏时鼠标位置监测时钟
     bool m_bFullscreenCtrlBarShow;
     QTimer stCtrlBarHideTimer;
 
     PlayList m_stPlaylist;
     Title m_stTitle;
 
-    bool m_bMoveDrag;//移动窗口标志
+    bool m_bMoveDrag; //移动窗口标志
     QPoint m_DragPosition;
 
     About m_stAboutWidget;

@@ -4,29 +4,28 @@
 #include <QCoreApplication>
 #include <QDir>
 
-#include "globalhelper.h"
+#include "GlobalHelper.h"
 
-const QString PLAYER_CONFIG_BASEDIR = QDir::tempPath();
-
-const QString PLAYER_CONFIG = "player_config.ini";
-
-const QString APP_VERSION = "0.1.0";
+const QString g_PlayerConfigBaseDir = QDir::tempPath();
+const QString g_PlayerConfig = "player_config.ini";
+const QString g_AppVersion = "0.0.1.0";
 
 GlobalHelper::GlobalHelper()
 {
-
 }
 
 QString GlobalHelper::getQssStr(QString strQssPath)
 {
-    QString strQss;
-    QFile FileQss(strQssPath);
-    if (FileQss.open(QIODevice::ReadOnly)) {
-        strQss = FileQss.readAll();
-        FileQss.close();
+    QString strQss = QString();
+    QFile fileQss(strQssPath);
+
+    if (fileQss.open(QIODevice::ReadOnly)) {
+        strQss = fileQss.readAll();
+        fileQss.close();
     } else {
         qDebug() << "读取样式表失败" << strQssPath;
     }
+
     return strQss;
 }
 
@@ -42,20 +41,22 @@ void GlobalHelper::setIcon(QPushButton* btn, int iconSize, QChar icon)
 
 void GlobalHelper::savePlaylist(QStringList& playList)
 {
-    QString strPlayerConfigFileName = PLAYER_CONFIG_BASEDIR + QDir::separator() + PLAYER_CONFIG;
-    QSettings settings(strPlayerConfigFileName, QSettings::IniFormat);
+    QString strCfgFileName = g_PlayerConfigBaseDir + QDir::separator() + g_PlayerConfig;
+    QSettings settings(strCfgFileName, QSettings::IniFormat);
     settings.beginWriteArray("playlist");
+
     for (int i = 0; i < playList.size(); ++i) {
         settings.setArrayIndex(i);
         settings.setValue("movie", playList.at(i));
     }
+
     settings.endArray();
 }
 
 void GlobalHelper::getPlaylist(QStringList& playList)
 {
-    QString strPlayerConfigFileName = PLAYER_CONFIG_BASEDIR + QDir::separator() + PLAYER_CONFIG;
-    QSettings settings(strPlayerConfigFileName, QSettings::IniFormat);
+    QString strCfgFileName = g_PlayerConfigBaseDir + QDir::separator() + g_PlayerConfig;
+    QSettings settings(strCfgFileName, QSettings::IniFormat);
 
     int size = settings.beginReadArray("playlist");
     for (int i = 0; i < size; ++i) {
@@ -67,21 +68,21 @@ void GlobalHelper::getPlaylist(QStringList& playList)
 
 void GlobalHelper::savePlayVolume(double& nVolume)
 {
-    QString strPlayerConfigFileName = PLAYER_CONFIG_BASEDIR + QDir::separator() + PLAYER_CONFIG;
-    QSettings settings(strPlayerConfigFileName, QSettings::IniFormat);
+    QString strCfgFileName = g_PlayerConfigBaseDir + QDir::separator() + g_PlayerConfig;
+    QSettings settings(strCfgFileName, QSettings::IniFormat);
     settings.setValue("volume/size", nVolume);
 }
 
 void GlobalHelper::getPlayVolume(double& nVolume)
 {
-    QString strPlayerConfigFileName = PLAYER_CONFIG_BASEDIR + QDir::separator() + PLAYER_CONFIG;
-    QSettings settings(strPlayerConfigFileName, QSettings::IniFormat);
+    QString strCfgFileName = g_PlayerConfigBaseDir + QDir::separator() + g_PlayerConfig;
+    QSettings settings(strCfgFileName, QSettings::IniFormat);
     QString str = settings.value("volume/size").toString();
     nVolume = settings.value("volume/size", nVolume).toDouble();
 }
 
 QString GlobalHelper::getAppVersion()
 {
-    return APP_VERSION;
+    return g_AppVersion;
 }
 

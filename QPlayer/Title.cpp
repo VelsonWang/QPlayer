@@ -1,5 +1,4 @@
-﻿
-#include <QPainter>
+﻿#include <QPainter>
 #include <QFileInfo>
 #include <QFontMetrics>
 #include <QMessageBox>
@@ -7,7 +6,6 @@
 
 #include "Title.h"
 #include "ui_Title.h"
-
 #include "GlobalHelper.h"
 
 

@@ -19,6 +19,7 @@ void CustomSlider::mousePressEvent(QMouseEvent *ev)
     setValue(pos * (maximum() - minimum()) + minimum());
 
     emit sigCustomSliderValueChanged();
+    emit sigCustomSliderPressed();
 }
 
 void CustomSlider::mouseReleaseEvent(QMouseEvent *ev)
@@ -26,6 +27,7 @@ void CustomSlider::mouseReleaseEvent(QMouseEvent *ev)
     QSlider::mouseReleaseEvent(ev);
 
     //emit SigCustomSliderValueChanged();
+    emit sigCustomSliderReleased();
 }
 
 void CustomSlider::mouseMoveEvent(QMouseEvent *ev)

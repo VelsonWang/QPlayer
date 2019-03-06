@@ -16,6 +16,7 @@ public:
     explicit CtrlBar(QWidget *parent = 0);
     ~CtrlBar();
     bool init();
+    bool isPlaySliderPressed();
 
 public:
     void onVideoTotalSeconds(int nSeconds);
@@ -34,6 +35,8 @@ private slots:
     void on_StopBtn_clicked();
     void on_SettingBtn_clicked();
     bool connectSignalSlots();
+    void onCustomSliderPressed();
+    void onCustomSliderReleased();
 
 signals:
     void sigShowOrHidePlaylist();	// 显示或隐藏信号
@@ -50,6 +53,8 @@ private:
     Ui::CtrlBar *ui;
     int totalPlaySeconds_;
     double lastVolumePercent_;
+    bool isPlaySliderPress_;
+
 };
 
 #endif // CTRLBAR_H

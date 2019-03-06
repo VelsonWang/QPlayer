@@ -10,12 +10,17 @@
 #include <QScreen>
 #include <QRect>
 #include <QFileDialog>
+#include <QMessageBox>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "GlobalHelper.h"
+#include "XDemuxThread.h"
 
 const int FULLSCREEN_MOUSE_DETECT_TIME = 200;
+
+static XDemuxThread demuxThread;
+
 
 MainWindow::MainWindow(QMainWindow *parent) :
     QMainWindow(parent),
@@ -27,10 +32,9 @@ MainWindow::MainWindow(QMainWindow *parent) :
     m_bMoveDrag(false)
 {
     ui->setupUi(this);
-    //无边框、无系统菜单、 任务栏点击最小化
     setWindowFlags(Qt::FramelessWindowHint /*| Qt::WindowSystemMenuHint*/ | Qt::WindowMinimizeButtonHint);
-    //设置任务栏图标
     this->setWindowIcon(QIcon(":/Resources/player.png"));
+
     //加载样式
     QString qss = GlobalHelper::getQssStr(":/Resources/qss/mainwid.css");
     setStyleSheet(qss);
@@ -66,10 +70,13 @@ MainWindow::MainWindow(QMainWindow *parent) :
     m_stCtrlBarAnimationTimer.setInterval(1000);
     m_stFullscreenMouseDetectTimer.setInterval(FULLSCREEN_MOUSE_DETECT_TIME);
 
+    demuxThread.start();
+    startTimer(40);
 }
 
 MainWindow::~MainWindow()
 {
+    demuxThread.close();
     delete ui;
 }
 
@@ -95,7 +102,6 @@ bool MainWindow::init()
         return false;
     }
 
-
     m_stCtrlbarAnimationShow = new QPropertyAnimation(ui->CtrlBarWid, "geometry");
     m_stCtrlbarAnimationHide = new QPropertyAnimation(ui->CtrlBarWid, "geometry");
 
@@ -103,17 +109,17 @@ bool MainWindow::init()
         return false;
     }
 
-    m_stActFullscreen.setText("全屏");
+    m_stActFullscreen.setText(tr("全屏"));
     m_stActFullscreen.setCheckable(true);
     m_stMenu.addAction(&m_stActFullscreen);
 
-    m_stActOpen.setText("打开");
+    m_stActOpen.setText(tr("打开"));
     m_stMenu.addAction(&m_stActOpen);
 
-    m_stActAbout.setText("关于");
+    m_stActAbout.setText(tr("关于"));
     m_stMenu.addAction(&m_stActAbout);
     
-    m_stActExit.setText(QString::fromLocal8Bit("退出"));
+    m_stActExit.setText(tr("退出"));
     m_stMenu.addAction(&m_stActExit);
 
     return true;
@@ -145,22 +151,22 @@ bool MainWindow::connectSignalSlots()
     connect(&m_stTitle, &Title::sigMinBtnClicked, this, &MainWindow::onMinBtnClicked);
     connect(&m_stTitle, &Title::sigDoubleClicked, this, &MainWindow::onMaxBtnClicked);
     connect(&m_stTitle, &Title::sigFullScreenBtnClicked, this, &MainWindow::onFullScreenPlay);
-//    connect(&m_stTitle, &Title::SigOpenFile, &m_stPlaylist, &Playlist::OnAddFileAndPlay);
+    connect(&m_stTitle, &Title::sigOpenFile, &m_stPlaylist, &PlayList::onAddFileAndPlay);
     connect(&m_stTitle, &Title::sigShowMenu, this, &MainWindow::onShowMenu);
     
 
 //    connect(&m_stPlaylist, &Playlist::SigPlay, ui->ShowWid, &Show::SigPlay);
 
-//	connect(ui->ShowWid, &Show::SigOpenFile, &m_stPlaylist, &Playlist::OnAddFileAndPlay);
+//    connect(ui->VideoShow, &Show::sigOpenFile, &m_stPlaylist, &Playlist::OnAddFileAndPlay);
 //    connect(ui->ShowWid, &Show::SigFullScreen, this, &MainWindow::OnFullScreenPlay);
 //    connect(ui->ShowWid, &Show::SigPlayOrPause, VideoCtl::GetInstance(), &VideoCtl::OnPause);
 //    connect(ui->ShowWid, &Show::SigStop, VideoCtl::GetInstance(), &VideoCtl::OnStop);
 //    connect(ui->ShowWid, &Show::SigShowMenu, this, &MainWindow::OnShowMenu);
 
     connect(ui->CtrlBarWid, &CtrlBar::sigShowOrHidePlaylist, this, &MainWindow::onShowOrHidePlaylist);
-//    connect(ui->CtrlBarWid, &CtrlBar::SigPlaySeek, VideoCtl::GetInstance(), &VideoCtl::OnPlaySeek);
+    connect(ui->CtrlBarWid, &CtrlBar::sigPlaySeek, this, &MainWindow::onPlaySeek);
 //    connect(ui->CtrlBarWid, &CtrlBar::SigPlayVolume, VideoCtl::GetInstance(), &VideoCtl::OnPlayVolume);
-//    connect(ui->CtrlBarWid, &CtrlBar::SigPlayOrPause, VideoCtl::GetInstance(), &VideoCtl::OnPause);
+    connect(ui->CtrlBarWid, &CtrlBar::sigPlayOrPause, this, &MainWindow::onPlayOrPause);
 //    connect(ui->CtrlBarWid, &CtrlBar::SigStop, VideoCtl::GetInstance(), &VideoCtl::OnStop);
 //    connect(ui->CtrlBarWid, &CtrlBar::SigBackwardPlay, &m_stPlaylist, &Playlist::OnBackwardPlay);
 //    connect(ui->CtrlBarWid, &CtrlBar::SigForwardPlay, &m_stPlaylist, &Playlist::OnForwardPlay);
@@ -172,7 +178,7 @@ bool MainWindow::connectSignalSlots()
 //    connect(this, &MainWindow::SigSeekBack, VideoCtl::GetInstance(), &VideoCtl::OnSeekBack);
 //    connect(this, &MainWindow::SigAddVolume, VideoCtl::GetInstance(), &VideoCtl::OnAddVolume);
 //    connect(this, &MainWindow::SigSubVolume, VideoCtl::GetInstance(), &VideoCtl::OnSubVolume);
-//    connect(this, &MainWindow::SigOpenFile, &m_stPlaylist, &Playlist::OnAddFileAndPlay);
+    connect(this, &MainWindow::sigOpenFile, &m_stPlaylist, &PlayList::onAddFileAndPlay);
     
     
 //    connect(VideoCtl::GetInstance(), &VideoCtl::SigVideoTotalSeconds, ui->CtrlBarWid, &CtrlBar::OnVideoTotalSeconds);
@@ -262,21 +268,33 @@ void MainWindow::contextMenuEvent(QContextMenuEvent* event)
     m_stMenu.exec(event->globalPos());
 }
 
+//定时器 滑动条显示
+void MainWindow::timerEvent(QTimerEvent *e)
+{
+    Q_UNUSED(e)
+    if (ui->CtrlBarWid->isPlaySliderPressed()) return;
+    long long total = demuxThread.totalMs_;
+    ui->CtrlBarWid->onVideoTotalSeconds(total);
+    if (total > 0) {
+        ui->CtrlBarWid->onVideoPlaySeconds(demuxThread.pts_);
+    }
+}
+
 void MainWindow::onFullScreenPlay()
 {
     if (m_bFullScreenPlay == false) {
         m_bFullScreenPlay = true;
         m_stActFullscreen.setChecked(true);
         //脱离父窗口后才能设置
-        ui->ShowWid->setWindowFlags(Qt::Window);
+        ui->VideoShow->setWindowFlags(Qt::Window);
         //多屏情况下，在当前屏幕全屏
         QScreen *pStCurScreen = qApp->screens().at(qApp->desktop()->screenNumber(this));
-        ui->ShowWid->windowHandle()->setScreen(pStCurScreen);
-        ui->ShowWid->showFullScreen();
+        ui->VideoShow->windowHandle()->setScreen(pStCurScreen);
+        ui->VideoShow->showFullScreen();
 
         QRect stScreenRect = pStCurScreen->geometry();
         int nCtrlBarHeight = ui->CtrlBarWid->height();
-        int nX = ui->ShowWid->x();
+        int nX = ui->VideoShow->x();
         m_stCtrlBarAnimationShow = QRect(nX, stScreenRect.height() - nCtrlBarHeight, stScreenRect.width(), nCtrlBarHeight);
         m_stCtrlBarAnimationHide = QRect(nX, stScreenRect.height(), stScreenRect.width(), nCtrlBarHeight);
 
@@ -307,10 +325,10 @@ void MainWindow::onFullScreenPlay()
         ui->CtrlBarWid->setWindowOpacity(1);
         ui->CtrlBarWid->setWindowFlags(Qt::SubWindow);
         
-        ui->ShowWid->setWindowFlags(Qt::SubWindow);
+        ui->VideoShow->setWindowFlags(Qt::SubWindow);
 
         ui->CtrlBarWid->showNormal();
-        ui->ShowWid->showNormal();
+        ui->VideoShow->showNormal();
 
         m_stFullscreenMouseDetectTimer.stop();
     }
@@ -371,6 +389,15 @@ void MainWindow::openFile()
                                                        "视频文件(*.mkv *.rmvb *.mp4 *.avi *.flv *.wmv *.3gp)");
 
     emit sigOpenFile(strFileName);
+
+    if (strFileName.isEmpty())return;
+    m_stTitle.onPlay(strFileName);
+    if (!demuxThread.open(strFileName.toLocal8Bit(), ui->VideoShow))
+    {
+        QMessageBox::information(0, "error", "open file failed!");
+        return;
+    }
+    ui->CtrlBarWid->onPauseStat(demuxThread.isPause_);
 }
 
 void MainWindow::onCloseBtnClicked()
@@ -401,4 +428,16 @@ void MainWindow::onShowOrHidePlaylist()
      } else {
          ui->PlaylistWid->hide();
      }
+}
+
+void MainWindow::onPlaySeek(double dPercent)
+{
+    demuxThread.seek(dPercent);
+}
+
+void MainWindow::onPlayOrPause()
+{
+    bool isPause = !demuxThread.isPause_;
+    ui->CtrlBarWid->onPauseStat(isPause);
+    demuxThread.setPause(isPause);
 }

@@ -1,6 +1,5 @@
 ﻿#include <QApplication>
 #include <QFontDatabase>
-#include "XPlay2.h"
 #include "MainWindow.h"
 
 #ifdef __cplusplus
@@ -24,9 +23,6 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-
-//    XPlay2 player;
-//    player.show();
 
     QFontDatabase::addApplicationFont(":/Resources/fontawesome-webfont.ttf");
     //QFontDatabase::addApplicationFont(":/Resources/fa-solid-900.ttf");

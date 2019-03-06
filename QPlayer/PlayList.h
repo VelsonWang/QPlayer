@@ -41,6 +41,7 @@ public:
     {
         return QSize(150, 900);
     }
+
 protected:
     void dropEvent(QDropEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);

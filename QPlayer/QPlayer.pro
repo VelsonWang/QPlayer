@@ -43,10 +43,8 @@ SOURCES += \
     XDemux.cpp \
     XDecode.cpp \
     XVideoWidget.cpp \
-    XPlay2.cpp \
     XResample.cpp \
     XAudioPlay.cpp \
-    XSlider.cpp \
     XAudioThread.cpp \
     XDecodeThread.cpp \
     XVideoThread.cpp \
@@ -65,11 +63,9 @@ HEADERS += \
     XDemux.h \
     XDecode.h \
     XVideoWidget.h \
-    XPlay2.h \
     XResample.h \
     XAudioPlay.h \
     IVideoCall.h \
-    XSlider.h \
     XAudioThread.h \
     XDecodeThread.h \
     XVideoThread.h \
@@ -85,7 +81,6 @@ HEADERS += \
     XSDLVideoWidget.h
 
 FORMS += \
-    XPlay2.ui \
     MainWindow.ui \
     PlayList.ui \
     Title.ui \
@@ -93,4 +88,4 @@ FORMS += \
     CtrlBar.ui
 
 RESOURCES += \
-    XPlay2.qrc
+    QPlay.qrc
