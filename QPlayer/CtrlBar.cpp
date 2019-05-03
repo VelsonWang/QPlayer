@@ -1,27 +1,23 @@
 ﻿#include <QDebug>
 #include <QTime>
 #include <QSettings>
- 
-#include "ctrlbar.h"
-#include "ui_ctrlbar.h"
+#include "CtrlBar.h"
+#include "ui_CtrlBar.h"
 #include "GlobalHelper.h"
 
 CtrlBar::CtrlBar(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CtrlBar),
-    isPlaySliderPress_(false)
-{
+    isPlaySliderPress_(false) {
     ui->setupUi(this);
     lastVolumePercent_ = 1.0;
 }
 
-CtrlBar::~CtrlBar()
-{
+CtrlBar::~CtrlBar() {
     delete ui;
 }
 
-bool CtrlBar::init()
-{
+bool CtrlBar::init() {
     setStyleSheet(GlobalHelper::getQssStr(":/Resources/qss/ctrlbar.css"));
 
     GlobalHelper::setIcon(ui->PlayOrPauseBtn, 12, QChar(0xf04b));
@@ -54,21 +50,25 @@ bool CtrlBar::init()
 
 }
 
-bool CtrlBar::connectSignalSlots()
-{
-    connect(ui->PlaylistCtrlBtn, &QPushButton::clicked, this, &CtrlBar::sigShowOrHidePlaylist);
-    connect(ui->PlaySlider, &CustomSlider::sigCustomSliderValueChanged, this, &CtrlBar::onPlaySliderValueChanged);
-    connect(ui->PlaySlider, &CustomSlider::sigCustomSliderPressed, this, &CtrlBar::onCustomSliderPressed);
-    connect(ui->PlaySlider, &CustomSlider::sigCustomSliderReleased, this, &CtrlBar::onCustomSliderReleased);
-    connect(ui->VolumeSlider, &CustomSlider::sigCustomSliderValueChanged, this, &CtrlBar::onVolumeSliderValueChanged);
-    connect(ui->BackwardBtn, &QPushButton::clicked, this, &CtrlBar::sigBackwardPlay);
-    connect(ui->ForwardBtn, &QPushButton::clicked, this, &CtrlBar::sigForwardPlay);
-
+bool CtrlBar::connectSignalSlots() {
+    connect(ui->PlaylistCtrlBtn, &QPushButton::clicked,
+            this, &CtrlBar::sigShowOrHidePlaylist);
+    connect(ui->PlaySlider, &CustomSlider::sigCustomSliderValueChanged,
+            this, &CtrlBar::onPlaySliderValueChanged);
+    connect(ui->PlaySlider, &CustomSlider::sigCustomSliderPressed,
+            this, &CtrlBar::onCustomSliderPressed);
+    connect(ui->PlaySlider, &CustomSlider::sigCustomSliderReleased,
+            this, &CtrlBar::onCustomSliderReleased);
+    connect(ui->VolumeSlider, &CustomSlider::sigCustomSliderValueChanged,
+            this, &CtrlBar::onVolumeSliderValueChanged);
+    connect(ui->BackwardBtn, &QPushButton::clicked,
+            this, &CtrlBar::sigBackwardPlay);
+    connect(ui->ForwardBtn, &QPushButton::clicked,
+            this, &CtrlBar::sigForwardPlay);
     return true;
 }
 
-void CtrlBar::onVideoTotalSeconds(int nSeconds)
-{
+void CtrlBar::onVideoTotalSeconds(int nSeconds) {
     totalPlaySeconds_ = nSeconds;
 
     int thh, tmm, tss;
@@ -81,8 +81,7 @@ void CtrlBar::onVideoTotalSeconds(int nSeconds)
 }
 
 
-void CtrlBar::onVideoPlaySeconds(int nSeconds)
-{
+void CtrlBar::onVideoPlaySeconds(int nSeconds) {
     int thh, tmm, tss;
     thh = nSeconds / 3600;
     tmm = (nSeconds % 3600) / 60;
@@ -94,8 +93,7 @@ void CtrlBar::onVideoPlaySeconds(int nSeconds)
     ui->PlaySlider->setValue(nSeconds * 1.0 / totalPlaySeconds_ * MAX_SLIDER_VALUE);
 }
 
-void CtrlBar::onVideopVolume(double dPercent)
-{
+void CtrlBar::onVideopVolume(double dPercent) {
     ui->VolumeSlider->setValue(dPercent * MAX_SLIDER_VALUE);
     lastVolumePercent_ = dPercent;
 
@@ -108,9 +106,7 @@ void CtrlBar::onVideopVolume(double dPercent)
     GlobalHelper::savePlayVolume(dPercent);
 }
 
-void CtrlBar::onPauseStat(bool bPaused)
-{
-    qDebug() << "CtrlBar::OnPauseStat" << bPaused;
+void CtrlBar::onPauseStat(bool bPaused) {
     if (bPaused) {
         GlobalHelper::setIcon(ui->PlayOrPauseBtn, 12, QChar(0xf04b));
         ui->PlayOrPauseBtn->setToolTip("播放");
@@ -120,8 +116,7 @@ void CtrlBar::onPauseStat(bool bPaused)
     }
 }
 
-void CtrlBar::onStopFinished()
-{
+void CtrlBar::onStopFinished() {
     ui->PlaySlider->setValue(0);
     QTime StopTime(0, 0, 0);
     ui->VideoTotalTimeTimeEdit->setTime(StopTime);
@@ -130,27 +125,22 @@ void CtrlBar::onStopFinished()
     ui->PlayOrPauseBtn->setToolTip("播放");
 }
 
-void CtrlBar::onPlaySliderValueChanged()
-{
+void CtrlBar::onPlaySliderValueChanged() {
     double dPercent = ui->PlaySlider->value()*1.0 / ui->PlaySlider->maximum();
     emit sigPlaySeek(dPercent);
 }
 
-void CtrlBar::onVolumeSliderValueChanged()
-{
+void CtrlBar::onVolumeSliderValueChanged() {
     double dPercent = ui->VolumeSlider->value()*1.0 / ui->VolumeSlider->maximum();
     emit sigPlayVolume(dPercent);
-
     onVideopVolume(dPercent);
 }
 
-void CtrlBar::on_PlayOrPauseBtn_clicked()
-{
+void CtrlBar::on_PlayOrPauseBtn_clicked() {
     emit sigPlayOrPause();
 }
 
-void CtrlBar::on_VolumeBtn_clicked()
-{
+void CtrlBar::on_VolumeBtn_clicked() {
     if (ui->VolumeBtn->text() == QChar(0xf028)) {
         GlobalHelper::setIcon(ui->VolumeBtn, 12, QChar(0xf026));
         ui->VolumeSlider->setValue(0);
@@ -160,30 +150,24 @@ void CtrlBar::on_VolumeBtn_clicked()
         ui->VolumeSlider->setValue(lastVolumePercent_ * MAX_SLIDER_VALUE);
         emit sigPlayVolume(lastVolumePercent_);
     }
-
 }
 
-void CtrlBar::on_StopBtn_clicked()
-{
+void CtrlBar::on_StopBtn_clicked() {
     emit sigStop();
 }
 
-void CtrlBar::on_SettingBtn_clicked()
-{
+void CtrlBar::on_SettingBtn_clicked() {
     //emit SigShowSetting();
 }
 
-bool CtrlBar::isPlaySliderPressed()
-{
+bool CtrlBar::isPlaySliderPressed() {
     return isPlaySliderPress_;
 }
 
-void CtrlBar::onCustomSliderPressed()
-{
+void CtrlBar::onCustomSliderPressed() {
     isPlaySliderPress_ = true;
 }
 
-void CtrlBar::onCustomSliderReleased()
-{
+void CtrlBar::onCustomSliderReleased() {
     isPlaySliderPress_ = false;
 }

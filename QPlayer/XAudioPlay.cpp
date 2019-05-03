@@ -11,25 +11,20 @@ public:
     QIODevice *io_ = nullptr;
     std::mutex mutex_;
 
-    virtual void close()
-	{
-        mutex_.lock();
-        if (io_)
-		{
+    virtual void close() {
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (io_) {
             io_->close ();
             io_ = nullptr;
 		}
-        if (output_)
-		{
+        if (output_) {
             output_->stop();
             delete output_;
             output_ = nullptr;
 		}
-        mutex_.unlock();
 	}
 
-    virtual bool open()
-	{
+    virtual bool open() {
         close();
 		QAudioFormat fmt;
 		fmt.setSampleRate(sampleRate);
@@ -38,55 +33,44 @@ public:
 		fmt.setCodec("audio/pcm");
 		fmt.setByteOrder(QAudioFormat::LittleEndian);
 		fmt.setSampleType(QAudioFormat::UnSignedInt);
-        mutex_.lock();
+        std::unique_lock<std::mutex> lock(mutex_);
         output_ = new QAudioOutput(fmt);
         io_ = output_->start(); //开始播放
-        mutex_.unlock();
+        lock.unlock();
         if(io_) return true;
 		return false;
 	}
 
-    void clear()
-    {
-        mutex_.lock();
-        if (io_) io_->reset();
-        mutex_.unlock();
+    void clear() {
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (io_) {
+            io_->reset();
+        }
     }
 
-    virtual bool write(const unsigned char *data, int datasize)
-    {
-        if (!data || datasize <= 0) return false;
-        mutex_.lock();
-        if (!output_ || !io_)
-        {
-            mutex_.unlock();
+    virtual bool write(const unsigned char *data, int datasize) {
+        if (!data || datasize <= 0)
+            return false;
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (!output_ || !io_) {
             return false;
         }
         int size = io_->write((char *)data, datasize);
-        mutex_.unlock();
-        if (datasize != size) return false;
-        return true;
+        return datasize == size;
     }
 
-    virtual int getFree()
-    {
-        mutex_.lock();
-        if (!output_)
-        {
-            mutex_.unlock();
+    virtual int getFree() {
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (!output_) {
             return 0;
         }
         int free = output_->bytesFree();
-        mutex_.unlock();
         return free;
     }
 
-    virtual long long getNoPlayMs()
-    {
-        mutex_.lock();
-        if (!output_)
-        {
-            mutex_.unlock();
+    virtual long long getNoPlayMs() {
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (!output_) {
             return 0;
         }
         long long pts = 0;
@@ -97,36 +81,32 @@ public:
         if (secSize <= 0) pts = 0;
         else pts = (size/secSize)*1000;
 
-        mutex_.unlock();
         return pts;
     }
 
-    void setPause(bool isPause)
-    {
-        mutex_.lock();
-        if (!output_)
-        {
-            mutex_.unlock();
+    void setPause(bool isPause) {
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (!output_) {
             return;
         }
-        if (isPause) output_->suspend();
-        else output_->resume();
-        mutex_.unlock();
+        if (isPause) {
+            output_->suspend();
+        }
+        else {
+            output_->resume();
+        }
     }
 };
 
 
-XAudioPlay *XAudioPlay::get()
-{
+XAudioPlay *XAudioPlay::get() {
 	static CXAudioPlay play;
 	return &play;
 }
 
-XAudioPlay::XAudioPlay()
-{
+XAudioPlay::XAudioPlay() {
 }
 
 
-XAudioPlay::~XAudioPlay()
-{
+XAudioPlay::~XAudioPlay() {
 }

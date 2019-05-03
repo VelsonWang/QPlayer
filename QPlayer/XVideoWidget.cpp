@@ -10,13 +10,11 @@
 
 XVideoWidget::XVideoWidget(QWidget *parent)
     : QOpenGLWidget(parent),
-      bShowVideo_(false)
-{
+      bShowVideo_(false) {
 
 }
 
-XVideoWidget::~XVideoWidget()
-{
+XVideoWidget::~XVideoWidget() {
     avpicture_free(&avPicture_);
     sws_freeContext(swsCtxPtr_);
 }
@@ -26,9 +24,8 @@ int XVideoWidget::scaleImg(AVCodecContext *pCodecCtx,
                            AVFrame *src_picture,
                            AVFrame *dst_picture,
                            int nDstH,
-                           int nDstW)
-{
-    int i ;
+                           int nDstW) {
+    int i = 0;
     int nSrcStride[3];
     int nDstStride[3];
     int nSrcH = pCodecCtx->height;
@@ -45,8 +42,6 @@ int XVideoWidget::scaleImg(AVCodecContext *pCodecCtx,
     dst_picture->linesize[1] = nDstW/2;
     dst_picture->linesize[2] = nDstW/2;
 
-    printf("nSrcW%d\n",nSrcW);
-
     m_pSwsContext = sws_getContext(nSrcW,
                                    nSrcH,
                                    AV_PIX_FMT_YUV420P,
@@ -58,9 +53,7 @@ int XVideoWidget::scaleImg(AVCodecContext *pCodecCtx,
                                    NULL,
                                    NULL);
 
-    if (NULL == m_pSwsContext)
-    {
-        printf("ffmpeg get context error!\n");
+    if (NULL == m_pSwsContext) {
         return 0;
     }
 
@@ -72,22 +65,19 @@ int XVideoWidget::scaleImg(AVCodecContext *pCodecCtx,
               dst_picture->data,
               dst_picture->linesize);
 
-    printf("line0:%d line1:%d line2:%d\n", dst_picture->linesize[0], dst_picture->linesize[1], dst_picture->linesize[2]);
     sws_freeContext(m_pSwsContext);
 
     return 1;
 }
 
 
-void XVideoWidget::repaint(AVFrame *frame)
-{
-    if (!frame) return;
-    mutex_.lock();
+void XVideoWidget::repaint(AVFrame *frame) {
+    if (!frame)
+        return;
+    std::unique_lock<std::mutex> lock(mutex_);
 
-    if (width_*height_ == 0 || frame->width != width_ || frame->height != height_)
-	{
+    if (width_*height_ == 0 || frame->width != width_ || frame->height != height_) {
 		av_frame_free(&frame);
-        mutex_.unlock();
         return;
 	}
 
@@ -99,20 +89,17 @@ void XVideoWidget::repaint(AVFrame *frame)
                        avPicture_.data,
                        avPicture_.linesize);
 
-    mutex_.unlock();
     bShowVideo_ = true;
 	update();
 }
 
 
-void XVideoWidget::paintEvent(QPaintEvent *event)
-{
+void XVideoWidget::paintEvent(QPaintEvent *event) {
     Q_UNUSED(event)
     QPainter painter;
     painter.begin(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    if(avPicture_.data != NULL && bShowVideo_)
-    {
+    if(avPicture_.data != NULL && bShowVideo_) {
         QImage image = QImage(avPicture_.data[0], width_, height_, QImage::Format_RGB888);
         QPixmap pix = QPixmap::fromImage(image);
         painter.drawPixmap((this->width()-pix.width())/2, (this->height()-pix.height())/2, pix.width(), pix.height(), pix);
@@ -120,9 +107,8 @@ void XVideoWidget::paintEvent(QPaintEvent *event)
     painter.end();
 }
 
-void XVideoWidget::init(int width, int height)
-{
-    mutex_.lock();
+void XVideoWidget::init(int width, int height) {
+    std::unique_lock<std::mutex> lock(mutex_);
     width_ = width;
     height_ = height;
 
@@ -137,8 +123,6 @@ void XVideoWidget::init(int width, int height)
                                 0,
                                 0,
                                 0);
-
-    mutex_.unlock();
 }
 
 

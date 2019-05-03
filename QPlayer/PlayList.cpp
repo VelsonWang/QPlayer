@@ -1,21 +1,18 @@
-﻿#include <QDebug>
+﻿#include <QMessageBox>
 #include <QDir>
-
-#include "playlist.h"
-#include "ui_playlist.h"
+#include "PlayList.h"
+#include "ui_PlayList.h"
 #include "GlobalHelper.h"
 
 
 PlayList::PlayList(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::PlayList)
-{
+    ui(new Ui::PlayList) {
     ui->setupUi(this);
 	
 }
 
-PlayList::~PlayList()
-{
+PlayList::~PlayList() {
     QStringList strListPlayList;
     for (int i = 0; i < ui->List->count(); i++) {
         strListPlayList.append(ui->List->item(i)->toolTip());
@@ -25,8 +22,7 @@ PlayList::~PlayList()
     delete ui;
 }
 
-bool PlayList::init()
-{
+bool PlayList::init() {
     if (ui->List->init() == false) {
         return false;
     }
@@ -44,8 +40,7 @@ bool PlayList::init()
 	return true;
 }
 
-bool PlayList::initUi()
-{
+bool PlayList::initUi() {
     setStyleSheet(GlobalHelper::getQssStr(":/Resources/qss/playlist.css"));
     ui->List->clear();
 
@@ -70,8 +65,7 @@ bool PlayList::initUi()
     return true;
 }
 
-bool PlayList::connectSignalSlots()
-{
+bool PlayList::connectSignalSlots() {
 	QList<bool> listRet;
 	bool bRet;
 
@@ -87,15 +81,13 @@ bool PlayList::connectSignalSlots()
 	return true;
 }
 
-void PlayList::on_List_itemDoubleClicked(QListWidgetItem *item)
-{
+void PlayList::on_List_itemDoubleClicked(QListWidgetItem *item) {
     emit sigPlay(item->data(Qt::UserRole).toString());
     currentPlayListIndex_ = ui->List->row(item);
     ui->List->setCurrentRow(currentPlayListIndex_);
 }
 
-bool PlayList::getPlaylistStatus()
-{
+bool PlayList::getPlaylistStatus() {
     if (this->isHidden()) {
         return false;
     }
@@ -103,8 +95,7 @@ bool PlayList::getPlaylistStatus()
     return true;
 }
 
-void PlayList::onAddFile(QString strFileName)
-{
+void PlayList::onAddFile(QString strFileName) {
     bool bSupportMovie = strFileName.endsWith(".mkv", Qt::CaseInsensitive) ||
         strFileName.endsWith(".rmvb", Qt::CaseInsensitive) ||
         strFileName.endsWith(".mp4", Qt::CaseInsensitive) ||
@@ -113,9 +104,11 @@ void PlayList::onAddFile(QString strFileName)
         strFileName.endsWith(".wmv", Qt::CaseInsensitive) ||
         strFileName.endsWith(".3gp", Qt::CaseInsensitive);
     if (!bSupportMovie) {
+        QMessageBox::information(0,
+                                 tr("提示"),
+                                 tr("文件格式不支持！"));
         return;
     }
-
 
     QFileInfo fileInfo(strFileName);
 	QList<QListWidgetItem *> listItem = ui->List->findItems(fileInfo.fileName(), Qt::MatchExactly);
@@ -131,8 +124,7 @@ void PlayList::onAddFile(QString strFileName)
     }
 }
 
-void PlayList::onAddFileAndPlay(QString strFileName)
-{
+void PlayList::onAddFileAndPlay(QString strFileName) {
     bool bSupportMovie = strFileName.endsWith(".mkv", Qt::CaseInsensitive) ||
         strFileName.endsWith(".rmvb", Qt::CaseInsensitive) ||
         strFileName.endsWith(".mp4", Qt::CaseInsensitive) ||
@@ -141,6 +133,9 @@ void PlayList::onAddFileAndPlay(QString strFileName)
         strFileName.endsWith(".wmv", Qt::CaseInsensitive) ||
         strFileName.endsWith(".3gp", Qt::CaseInsensitive);
     if (!bSupportMovie) {
+        QMessageBox::information(0,
+                                 tr("提示"),
+                                 tr("文件格式不支持！"));
         return;
     }
 
@@ -159,8 +154,7 @@ void PlayList::onAddFileAndPlay(QString strFileName)
     on_List_itemDoubleClicked(pItem);
 }
 
-void PlayList::onBackwardPlay()
-{
+void PlayList::onBackwardPlay() {
     if (currentPlayListIndex_ == 0) {
         currentPlayListIndex_ = ui->List->count() - 1;
         on_List_itemDoubleClicked(ui->List->item(currentPlayListIndex_));
@@ -172,8 +166,7 @@ void PlayList::onBackwardPlay()
     }
 }
 
-void PlayList::onForwardPlay()
-{
+void PlayList::onForwardPlay() {
     if (currentPlayListIndex_ == ui->List->count() - 1) {
         currentPlayListIndex_ = 0;
         on_List_itemDoubleClicked(ui->List->item(currentPlayListIndex_));
@@ -185,8 +178,7 @@ void PlayList::onForwardPlay()
     }
 }
 
-void PlayList::dropEvent(QDropEvent *event)
-{
+void PlayList::dropEvent(QDropEvent *event) {
     QList<QUrl> urls = event->mimeData()->urls();
     if (urls.isEmpty()) {
         return;
@@ -194,12 +186,10 @@ void PlayList::dropEvent(QDropEvent *event)
 
     for (QUrl url : urls) {
         QString strFileName = url.toLocalFile();
-
         onAddFile(strFileName);
     }
 }
 
-void PlayList::dragEnterEvent(QDragEnterEvent *event)
-{
+void PlayList::dragEnterEvent(QDragEnterEvent *event) {
     event->acceptProposedAction();
 }

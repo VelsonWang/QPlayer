@@ -19,7 +19,7 @@
    <string>PlayerDemo 关于</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="XPlay2.qrc">
+   <iconset resource="QPlay.qrc">
     <normaloff>:/Resources/Player.ico</normaloff>:/Resources/Player.ico</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -174,7 +174,7 @@ p, li { white-space: pre-wrap; }
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="XPlay2.qrc"/>
+  <include location="QPlay.qrc"/>
  </resources>
  <connections/>
 </ui>

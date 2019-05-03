@@ -9,19 +9,17 @@ extern "C" {
 
 using namespace std;
 
-XResample::XResample()
-{
+XResample::XResample() {
 }
 
-XResample::~XResample()
-{
+XResample::~XResample() {
 }
 
-void XResample::close()
-{
-    mutex_.lock();
-    if (swrContext_) swr_free(&swrContext_);
-    mutex_.unlock();
+void XResample::close() {
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (swrContext_) {
+        swr_free(&swrContext_);
+    }
 }
 
 /**
@@ -31,10 +29,10 @@ void XResample::close()
  * @param isClearPara
  * @return
  */
-bool XResample::open(AVCodecParameters *para, bool isClearPara)
-{
-    if (!para) return false;
-    mutex_.lock();
+bool XResample::open(AVCodecParameters *para, bool isClearPara) {
+    if (!para)
+        return false;
+    std::unique_lock<std::mutex> lock(mutex_);
 
     //如果swrContext_为NULL会分配空间
     swrContext_ = swr_alloc_set_opts(swrContext_,
@@ -45,16 +43,15 @@ bool XResample::open(AVCodecParameters *para, bool isClearPara)
                                      (AVSampleFormat)para->format,
                                      para->sample_rate,
                                      0, 0);
-    if(isClearPara) avcodec_parameters_free(&para);
+    if(isClearPara) {
+        avcodec_parameters_free(&para);
+    }
 
     int re = swr_init(swrContext_);
-    mutex_.unlock();
-	if (re != 0)
-	{
+    if (re != 0) {
 		char buf[1024] = { 0 };
 		av_strerror(re, buf, sizeof(buf) - 1);
-        //cout << "swr_init  failed! :" << buf << endl;
-		return false;
+        return false;
 	}
 	return true;
 }
@@ -67,11 +64,10 @@ bool XResample::open(AVCodecParameters *para, bool isClearPara)
  * @param data
  * @return
  */
-int XResample::resample(AVFrame *indata, unsigned char *data)
-{
-    if (!indata) return 0;
-    if (!data)
-    {
+int XResample::resample(AVFrame *indata, unsigned char *data) {
+    if (!indata)
+        return 0;
+    if (!data) {
         av_frame_free(&indata);
         return 0;
     }

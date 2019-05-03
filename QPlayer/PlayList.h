@@ -37,8 +37,7 @@ public:
     void onForwardPlay();
 
     // 在这里定义dock的初始大小
-    QSize sizeHint() const
-    {
+    QSize sizeHint() const {
         return QSize(150, 900);
     }
 

@@ -1,27 +1,26 @@
 ﻿#ifndef GLOBALHELPER_H
 #define GLOBALHELPER_H
 
-enum ERROR_CODE
-{
-    NoError = 0,
-    ErrorFileInvalid
-};
-
-
 #include <QString>
 #include <QPushButton>
 #include <QDebug>
 #include <QStringList>
+
+enum ERROR_CODE {
+    NoError = 0,
+    ErrorFileInvalid
+};
+
 
 class GlobalHelper
 {
 public:
     GlobalHelper();
 
-    static QString getQssStr(QString strQssPath);
+    static QString getQssStr(const QString &strQssPath);
     static void setIcon(QPushButton* btn, int iconSize, QChar icon);
 
-    static void savePlaylist(QStringList& playList);
+    static void savePlaylist(const QStringList& playList);
     static void getPlaylist(QStringList& playList);
     static void savePlayVolume(double& nVolume);
     static void getPlayVolume(double& nVolume);

@@ -5,16 +5,13 @@
 
 MediaList::MediaList(QWidget *parent)
     : QListWidget(parent),
-    menu_(this)
-{
+    menu_(this) {
 }
 
-MediaList::~MediaList()
-{
+MediaList::~MediaList() {
 }
 
-bool MediaList::init()
-{
+bool MediaList::init() {
     actAdd_.setText("添加");
     menu_.addAction(&actAdd_);
     actRemove_.setText("移除所选项");
@@ -30,25 +27,21 @@ bool MediaList::init()
     return true;
 }
 
-void MediaList::contextMenuEvent(QContextMenuEvent* event)
-{
+void MediaList::contextMenuEvent(QContextMenuEvent* event) {
     menu_.exec(event->globalPos());
 }
 
-void MediaList::addFile()
-{
+void MediaList::addFile() {
     QStringList listFileName = QFileDialog::getOpenFileNames(this,
                                                              "打开文件",
                                                              QDir::homePath(),
                                                              "视频文件(*.mkv *.rmvb *.mp4 *.avi *.flv *.wmv *.3gp)");
-
     for (QString strFileName : listFileName) {
         emit sigAddFile(strFileName);
     }
 }
 
-void MediaList::removeFile()
-{
+void MediaList::removeFile() {
     takeItem(currentRow());
 }
 

@@ -8,7 +8,7 @@
 #include <QActionGroup>
 #include <QAction>
 
-#include "about.h"
+#include "About.h"
 
 namespace Ui {
 class Title;

@@ -22,15 +22,14 @@ const int FULLSCREEN_MOUSE_DETECT_TIME = 200;
 static XDemuxThread demuxThread;
 
 
-MainWindow::MainWindow(QMainWindow *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    m_nShadowWidth(0),
-    m_stMenu(this),
-    m_stPlaylist(this),
-    m_stTitle(this),
-    m_bMoveDrag(false)
-{
+MainWindow::MainWindow(QMainWindow *parent)
+    : QMainWindow(parent),
+      ui(new Ui::MainWindow),
+      m_nShadowWidth(0),
+      m_stMenu(this),
+      m_stPlaylist(this),
+      m_stTitle(this),
+      m_bMoveDrag(false) {
     ui->setupUi(this);
     setWindowFlags(Qt::FramelessWindowHint /*| Qt::WindowSystemMenuHint*/ | Qt::WindowMinimizeButtonHint);
     this->setWindowIcon(QIcon(":/Resources/player.png"));

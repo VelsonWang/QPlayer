@@ -10,12 +10,10 @@ const QString g_PlayerConfigBaseDir = QDir::tempPath();
 const QString g_PlayerConfig = "player_config.ini";
 const QString g_AppVersion = "0.0.1.0";
 
-GlobalHelper::GlobalHelper()
-{
+GlobalHelper::GlobalHelper() {
 }
 
-QString GlobalHelper::getQssStr(QString strQssPath)
-{
+QString GlobalHelper::getQssStr(const QString &strQssPath) {
     QString strQss = QString();
     QFile fileQss(strQssPath);
 
@@ -29,8 +27,9 @@ QString GlobalHelper::getQssStr(QString strQssPath)
     return strQss;
 }
 
-void GlobalHelper::setIcon(QPushButton* btn, int iconSize, QChar icon)
-{
+void GlobalHelper::setIcon(QPushButton* btn,
+                           int iconSize,
+                           QChar icon) {
     QFont font;
     font.setFamily("FontAwesome");
     font.setPointSize(iconSize);
@@ -39,8 +38,7 @@ void GlobalHelper::setIcon(QPushButton* btn, int iconSize, QChar icon)
     btn->setText(icon);
 }
 
-void GlobalHelper::savePlaylist(QStringList& playList)
-{
+void GlobalHelper::savePlaylist(const QStringList& playList) {
     QString strCfgFileName = g_PlayerConfigBaseDir + QDir::separator() + g_PlayerConfig;
     QSettings settings(strCfgFileName, QSettings::IniFormat);
     settings.beginWriteArray("playlist");
@@ -53,8 +51,7 @@ void GlobalHelper::savePlaylist(QStringList& playList)
     settings.endArray();
 }
 
-void GlobalHelper::getPlaylist(QStringList& playList)
-{
+void GlobalHelper::getPlaylist(QStringList& playList) {
     QString strCfgFileName = g_PlayerConfigBaseDir + QDir::separator() + g_PlayerConfig;
     QSettings settings(strCfgFileName, QSettings::IniFormat);
 
@@ -66,23 +63,20 @@ void GlobalHelper::getPlaylist(QStringList& playList)
     settings.endArray();
 }
 
-void GlobalHelper::savePlayVolume(double& nVolume)
-{
+void GlobalHelper::savePlayVolume(double& nVolume) {
     QString strCfgFileName = g_PlayerConfigBaseDir + QDir::separator() + g_PlayerConfig;
     QSettings settings(strCfgFileName, QSettings::IniFormat);
     settings.setValue("volume/size", nVolume);
 }
 
-void GlobalHelper::getPlayVolume(double& nVolume)
-{
+void GlobalHelper::getPlayVolume(double& nVolume) {
     QString strCfgFileName = g_PlayerConfigBaseDir + QDir::separator() + g_PlayerConfig;
     QSettings settings(strCfgFileName, QSettings::IniFormat);
     QString str = settings.value("volume/size").toString();
     nVolume = settings.value("volume/size", nVolume).toDouble();
 }
 
-QString GlobalHelper::getAppVersion()
-{
+QString GlobalHelper::getAppVersion() {
     return g_AppVersion;
 }
 

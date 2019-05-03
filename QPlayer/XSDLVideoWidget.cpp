@@ -25,8 +25,7 @@
 #endif
 
 XSDLVideoWidget::XSDLVideoWidget(QWidget *parent)
-    : QWidget(parent)
-{
+    : QWidget(parent) {
     if(SDL_Init(SDL_INIT_VIDEO)) {
         qDebug( "Could not initialize SDL - %s\n", SDL_GetError());
         return;
@@ -63,24 +62,21 @@ XSDLVideoWidget::XSDLVideoWidget(QWidget *parent)
 
 }
 
-XSDLVideoWidget::~XSDLVideoWidget()
-{
+XSDLVideoWidget::~XSDLVideoWidget() {
     avpicture_free(&avPicture_);
     sws_freeContext(swsCtxPtr_);
-
     SDL_Quit();
 }
 
 
 void XSDLVideoWidget::repaint(AVFrame *frame)
 {
-    if (!frame) return;
-    mutex_.lock();
+    if (!frame)
+        return;
+    std::unique_lock<std::mutex> lock(mutex_);
 
-    if (width_*height_ == 0 || frame->width != width_ || frame->height != height_)
-	{
+    if (width_*height_ == 0 || frame->width != width_ || frame->height != height_) {
 		av_frame_free(&frame);
-        mutex_.unlock();
         return;
 	}
 
@@ -91,8 +87,6 @@ void XSDLVideoWidget::repaint(AVFrame *frame)
                        height_,
                        avPicture_.data,
                        avPicture_.linesize);
-
-    mutex_.unlock();
 
     SDL_Rect sdlRect;
 
@@ -109,9 +103,8 @@ void XSDLVideoWidget::repaint(AVFrame *frame)
     SDL_RenderPresent(sdlRenderer_);
 }
 
-void XSDLVideoWidget::init(int width, int height)
-{
-    mutex_.lock();
+void XSDLVideoWidget::init(int width, int height) {
+    std::unique_lock<std::mutex> lock(mutex_);
     width_ = width;
     height_ = height;
 
@@ -126,8 +119,6 @@ void XSDLVideoWidget::init(int width, int height)
                                 0,
                                 0,
                                 0);
-
-    mutex_.unlock();
 }
 
 
