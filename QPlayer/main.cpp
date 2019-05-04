@@ -28,8 +28,7 @@ int main(int argc, char *argv[])
     //QFontDatabase::addApplicationFont(":/Resources/fa-solid-900.ttf");
 
     MainWindow mainWin;
-    if (mainWin.init() == false)
-    {
+    if (mainWin.init() == false) {
         return -1;
     }
     mainWin.show();

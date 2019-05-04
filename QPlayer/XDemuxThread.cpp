@@ -36,24 +36,28 @@ void XDemuxThread::seek(double pos) {
 	//清理缓存
     clear();
 
-    std::unique_lock<std::mutex> lock(mutex_);
+    mutex_.lock();
     bool status = this->isPause_;
-    lock.unlock();
+    mutex_.unlock();
 
 	//暂停
     setPause(true);
 
-    lock.lock();
+    mutex_.lock();
     if (demux_)
         demux_->seek(pos);
 	//实际要显示的位置pts
     long long seekPts = pos*demux_->totalMs_;
     while (!isExit_) {
         AVPacket *pkt = demux_->readVideo();
-		if (!pkt) break;
+        if (!pkt) {
+            mutex_.unlock();
+            break;
+        }
 		//如果解码到seekPts
         if (videoThread_->repaintPts(pkt, seekPts)) {
             this->pts_ = seekPts;
+            mutex_.unlock();
 			break;
 		}
 	}
@@ -74,14 +78,14 @@ void XDemuxThread::setPause(bool isPause) {
 
 void XDemuxThread::run() {
     while (!isExit_) {
-        std::unique_lock<std::mutex> lock(mutex_);
+        mutex_.lock();
         if (isPause_) {
-            lock.unlock();
+            mutex_.unlock();
 			msleep(5);
 			continue;
 		}
         if (!demux_) {
-            lock.unlock();
+            mutex_.unlock();
 			msleep(5);
 			continue;
 		}
@@ -94,7 +98,7 @@ void XDemuxThread::run() {
 
         AVPacket *pkt = demux_->read();
         if (!pkt) {
-            lock.unlock();
+            mutex_.unlock();
 			msleep(5);
 			continue;
 		}
@@ -108,7 +112,7 @@ void XDemuxThread::run() {
                 videoThread_->push(pkt);
             }
 		}
-        lock.unlock();
+        mutex_.unlock();
 		msleep(1);
 	}
 }
@@ -154,11 +158,12 @@ void XDemuxThread::close() {
     if (audioThread_)
         audioThread_->close();
 
-    std::unique_lock<std::mutex> lock(mutex_);
+    mutex_.lock();
     delete videoThread_;
     delete audioThread_;
     videoThread_ = nullptr;
     audioThread_ = nullptr;
+    mutex_.unlock();
 }
 
 //启动所有线程

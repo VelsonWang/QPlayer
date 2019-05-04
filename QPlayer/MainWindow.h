@@ -72,9 +72,14 @@ private:
     void onShowAbout();
     void openFile();
 
+
 private slots:
     void onPlaySeek(double dPercent);
     void onPlayOrPause();
+    // 播放文件
+    void onPlayVideo(const QString &fileName);
+    // 停止播放
+    void onStopPlay();
 
 signals:
     // 最大化信号
@@ -89,33 +94,33 @@ signals:
 private:
     Ui::MainWindow *ui;
 
-    bool m_bPlaying; // 正在播放
-    const int m_nShadowWidth; // 阴影宽度
-    bool m_bFullScreenPlay; // 全屏播放标志
+    bool bPlaying_; // 正在播放
+    const int nShadowWidth_; // 阴影宽度
+    bool bFullScreenPlay_; // 全屏播放标志
 
-    QPropertyAnimation *m_stCtrlbarAnimationShow; // 全屏时控制面板浮动显示
-    QPropertyAnimation *m_stCtrlbarAnimationHide; // 全屏时控制面板浮动显示
-    QRect m_stCtrlBarAnimationShow; // 控制面板显示区域
-    QRect m_stCtrlBarAnimationHide; // 控制面板隐藏区域
+    QPropertyAnimation *ctrlbarAnimationShow_; // 全屏时控制面板浮动显示
+    QPropertyAnimation *ctrlbarAnimationHide_; // 全屏时控制面板浮动显示
+    QRect ctrlBarShowRect_; // 控制面板显示区域
+    QRect ctrlBarHideRect_; // 控制面板隐藏区域
 
-    QTimer m_stCtrlBarAnimationTimer;
-    QTimer m_stFullscreenMouseDetectTimer; // 全屏时鼠标位置监测时钟
-    bool m_bFullscreenCtrlBarShow;
-    QTimer stCtrlBarHideTimer;
+    QTimer ctrlBarAnimationTimer_;
+    QTimer fullscreenMouseDetectTimer_; // 全屏时鼠标位置监测时钟
+    bool bFullscreenCtrlBarShow_;
+    QTimer ctrlBarHideTimer_;
 
-    PlayList m_stPlaylist;
-    Title m_stTitle;
+    PlayList playlist_;
+    Title title_;
 
-    bool m_bMoveDrag; //移动窗口标志
-    QPoint m_DragPosition;
+    bool bMoveDrag_; //移动窗口标志
+    QPoint dragPosition_;
 
-    About m_stAboutWidget;
+    About aboutWidget_;
 
-    QMenu m_stMenu;
-    QAction m_stActExit;
-    QAction m_stActAbout;
-    QAction m_stActOpen;
-    QAction m_stActFullscreen;
+    QMenu menu_;
+    QAction actExit_;
+    QAction actAbout_;
+    QAction actOpen_;
+    QAction actFullscreen_;
 };
 
 #endif // MainWindow_H

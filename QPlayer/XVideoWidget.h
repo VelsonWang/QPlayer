@@ -32,6 +32,7 @@ public:
 
     virtual void init(int width, int height);
     virtual void repaint(AVFrame *frame);
+    void clearWidget();
 
 private:
     int scaleImg(AVCodecContext *pCodecCtx,

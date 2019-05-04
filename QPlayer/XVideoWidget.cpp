@@ -102,7 +102,14 @@ void XVideoWidget::paintEvent(QPaintEvent *event) {
     if(avPicture_.data != NULL && bShowVideo_) {
         QImage image = QImage(avPicture_.data[0], width_, height_, QImage::Format_RGB888);
         QPixmap pix = QPixmap::fromImage(image);
-        painter.drawPixmap((this->width()-pix.width())/2, (this->height()-pix.height())/2, pix.width(), pix.height(), pix);
+        if(this->width() != pix.width() && this->height() != pix.height()) {
+            painter.fillRect(this->rect(), QBrush(Qt::black));
+        }
+        painter.drawPixmap((this->width()-pix.width())/2,
+                           (this->height()-pix.height())/2,
+                           pix.width(),
+                           pix.height(),
+                           pix);
     }
     painter.end();
 }
@@ -125,6 +132,11 @@ void XVideoWidget::init(int width, int height) {
                                 0);
 }
 
-
+void XVideoWidget::clearWidget() {
+    QPainter painter;
+    painter.begin(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.fillRect(this->rect(), QBrush(Qt::black));
+}
 
 
