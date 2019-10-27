@@ -13,7 +13,7 @@ class CtrlBar : public QWidget
     Q_OBJECT
 
 public:
-    explicit CtrlBar(QWidget *parent = 0);
+    explicit CtrlBar(QWidget *parent = Q_NULLPTR);
     ~CtrlBar();
     bool init();
     bool isPlaySliderPressed();

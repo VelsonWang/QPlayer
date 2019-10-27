@@ -16,7 +16,7 @@ QPushButton:pressed {
 
 /*****列表*******/
 QListWidget{
-     border: 1px solid Black;
+     border: 0px solid Black;
 }
 QListWidget::item:hover{
     /*background: Cyan;*/

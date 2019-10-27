@@ -30,6 +30,9 @@ public:
 	void run();
     void setPause(bool isPause);
 
+    // 设置音量
+    virtual void setVolume(float volume);
+
 public:
     bool isExit_ = false;
     long long pts_ = 0;

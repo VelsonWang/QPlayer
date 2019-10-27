@@ -76,6 +76,17 @@ void XDemuxThread::setPause(bool isPause) {
         videoThread_->setPause(isPause);
 }
 
+
+/**
+ * @brief XDemuxThread::setVolume
+ * @details 设置音量
+ * @param volume
+ */
+void XDemuxThread::setVolume(float volume) {
+    if (audioThread_)
+        audioThread_->setVolume(volume);
+}
+
 void XDemuxThread::run() {
     while (!isExit_) {
         mutex_.lock();

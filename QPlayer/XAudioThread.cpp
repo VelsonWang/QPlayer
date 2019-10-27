@@ -78,6 +78,17 @@ void XAudioThread::setPause(bool isPause) {
         audioPlay_->setPause(isPause);
 }
 
+
+/**
+ * @brief XAudioThread::setVolume
+ * @details 设置音量
+ * @param volume
+ */
+void XAudioThread::setVolume(float volume) {
+    if (audioPlay_)
+        audioPlay_->setVolume(volume);
+}
+
 void XAudioThread::run() {
 	unsigned char *pcm = new unsigned char[1024 * 1024 * 10];
     while (!isExit_) {

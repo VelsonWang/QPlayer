@@ -22,7 +22,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QMainWindow *parent = 0);
+    explicit MainWindow(QMainWindow *parent = Q_NULLPTR);
     ~MainWindow();
 
     bool init();
@@ -80,6 +80,8 @@ private slots:
     void onPlayVideo(const QString &fileName);
     // 停止播放
     void onStopPlay();
+    // 设置音量
+    void onSetVolume(float volume);
 
 signals:
     // 最大化信号
@@ -90,6 +92,7 @@ signals:
     void sigSubVolume();
     void sigPlayOrPause();
     void sigOpenFile(QString strFilename);
+
 
 private:
     Ui::MainWindow *ui;

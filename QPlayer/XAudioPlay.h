@@ -20,6 +20,8 @@ public:
     virtual bool write(const unsigned char *data, int datasize) = 0;
     virtual int getFree() = 0;
     virtual void setPause(bool isPause) = 0;
+    // 设置音量
+    virtual void setVolume(float volume) = 0;
 
     static XAudioPlay *get();
 
@@ -27,7 +29,8 @@ public:
 	int sampleRate = 44100;
 	int sampleSize = 16;
 	int channels = 2;
-	
+    float fVolume_ = 1.0;
+
 };
 
 #endif

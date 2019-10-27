@@ -3,6 +3,31 @@
 #include <QAudioFormat>
 #include <QAudioOutput>
 #include <mutex>
+#include <cmath>
+#include <QDebug>
+
+
+void raiseVolume(unsigned char* buf, int size, float vol)
+{
+    for (int i = 0; i < size; i += 2) {
+        short wData = (unsigned short)(buf[i] | (buf[i + 1] << 8));
+        long dwData = wData;
+        dwData = dwData * vol;
+        if (dwData < -0x8000)
+        {
+            dwData = -0x8000;
+        }
+        else if (dwData > 0x7FFF)
+        {
+            dwData = 0x7FFF;
+        }
+
+        wData = dwData & 0xFFFF;
+        buf[i] = wData & 0xFF;
+        buf[i + 1] = (wData & 0xFF00) >> 8;
+    }
+}
+
 
 class CXAudioPlay : public XAudioPlay
 {
@@ -35,6 +60,7 @@ public:
 		fmt.setSampleType(QAudioFormat::UnSignedInt);
         std::unique_lock<std::mutex> lock(mutex_);
         output_ = new QAudioOutput(fmt);
+        output_->setVolume(1.0);
         io_ = output_->start(); //开始播放
         lock.unlock();
         if(io_) return true;
@@ -55,7 +81,14 @@ public:
         if (!output_ || !io_) {
             return false;
         }
-        int size = io_->write((char *)data, datasize);
+
+        unsigned char *pBuf = new unsigned char[datasize];
+        memset(pBuf, 0, static_cast<size_t>(datasize));
+        memcpy(pBuf, data, static_cast<size_t>(datasize));
+        raiseVolume(pBuf, datasize, fVolume_);
+        int size = io_->write((const char *)pBuf, datasize);
+        delete[] pBuf;
+
         return datasize == size;
     }
 
@@ -95,6 +128,16 @@ public:
         else {
             output_->resume();
         }
+    }
+
+    // 设置音量
+    void setVolume(float volume) {
+        /*
+        if (!output_) {
+            return;
+        }
+        output_->setVolume(static_cast<qreal>(volume)); */
+        fVolume_ = volume;
     }
 };
 

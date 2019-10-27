@@ -10,7 +10,7 @@ QWidget#BgWidget{
     color:white;
 }
 QWidget#PlaySliderBgWidget{
-    border-bottom: 1px solid black;
+    border-bottom: 0px solid black;
 }
 QPushButton:hover{
     color:  Cyan;
@@ -22,7 +22,7 @@ QPushButton:pressed{
 
 /*滑竿*/
 QSlider::groove:horizontal {
-    border: 1px solid #4A708B;
+    border: 0px solid #4A708B;
     background: #C0C0C0;
     height: 3px;
     border-radius: 2px;

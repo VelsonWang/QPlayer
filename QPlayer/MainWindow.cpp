@@ -152,7 +152,7 @@ bool MainWindow::connectSignalSlots() {
 
     connect(ui->CtrlBarWid, &CtrlBar::sigShowOrHidePlaylist, this, &MainWindow::onShowOrHidePlaylist);
     connect(ui->CtrlBarWid, &CtrlBar::sigPlaySeek, this, &MainWindow::onPlaySeek);
-//    connect(ui->CtrlBarWid, &CtrlBar::SigPlayVolume, VideoCtl::GetInstance(), &VideoCtl::OnPlayVolume);
+    connect(ui->CtrlBarWid, &CtrlBar::sigPlayVolume, this, &MainWindow::onSetVolume);
     connect(ui->CtrlBarWid, &CtrlBar::sigPlayOrPause, this, &MainWindow::onPlayOrPause);
     connect(ui->CtrlBarWid, &CtrlBar::sigStop, this, &MainWindow::onStopPlay);
     connect(ui->CtrlBarWid, &CtrlBar::sigBackwardPlay, &playlist_, &PlayList::onBackwardPlay);
@@ -432,4 +432,13 @@ void MainWindow::onStopPlay() {
     demuxThread.isExit_ = true;
     bPlaying_ = false;
     ui->VideoShow->clearWidget();
+}
+
+/**
+ * @brief MainWindow::onSetVolume
+ * @details 设置音量
+ * @param volume
+ */
+void MainWindow::onSetVolume(float volume) {
+    demuxThread.setVolume(volume);
 }

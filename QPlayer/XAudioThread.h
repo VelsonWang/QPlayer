@@ -28,6 +28,8 @@ public:
 	void run();
 
     void setPause(bool isPause);
+    // 设置音量
+    void setVolume(float volume);
 
 public:
     bool isPause_ = false;
